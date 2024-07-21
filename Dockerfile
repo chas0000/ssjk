@@ -7,7 +7,8 @@ WORKDIR /app
 # 将当前目录内容复制到位于 /app 中的容器中  
 COPY . /app  
   
-# 安装 requirements.txt 中指定的任何依赖  
+# 安装 requirements.txt 中指定的任何依赖
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt  
   
 # 让容器监听端口 5000  
