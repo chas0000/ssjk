@@ -64,6 +64,7 @@ def configure_logging():
     # 定义日志文件名格式，包含时间戳
     #log_filename = os.path.join(log_dir, f'{prefix}{log_time}.log')
     log_filename = os.path.join(log_dir, f'{prefix_name}.log')
+    
     # 创建日志记录器
     logger = logging.getLogger('myapp')
     logger.setLevel(logging.DEBUG)
@@ -100,6 +101,7 @@ logger = configure_logging()
 
 monitor_thread = None
 monitor_running = False
+ssjk_log = os.path.join(log_dir, 'ssjk.log')
 
 def run_script():
     global monitor_running
@@ -147,7 +149,8 @@ def index():
 
 def stream_logs():
     def generate():
-        with open(log_filename, 'r') as f:
+        logger.info(f"log路径：{ssjk_log}")
+        with open(ssjk_log, 'r') as f:
             # 读取现有日志内容
             yield f.read()
             # 定位到文件末尾，准备监听新内容
