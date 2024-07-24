@@ -6,6 +6,8 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import logging
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from typing import Optional, List, Union
 from glob import glob  
 from pathlib import Path
@@ -13,7 +15,7 @@ from pathlib import Path
 # Telegram Bot API配置
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '')
-TELEGRAM_API_URL =  os.getenv('TELEGRAM_API_URL', '')
+TELEGRAM_API_URL =  f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage'
 # Emby API配置
 EMBY_SERVER_URL =os.getenv('EMBY_SERVER_URL', '')
 EMBY_API_KEY = os.getenv('EMBY_API_KEY', '')
@@ -95,8 +97,25 @@ def send_telegram_notification(message):
                 'chat_id': TELEGRAM_CHAT_ID,
                 'text': chunk
             }
-            response = requests.post(TELEGRAM_API_URL, data=payload)
-            if response.status_code != 200:
+            session = requests.Session()
+            # 设置重试策略
+            retry = Retry(
+                        total=5,  # 总重试次数
+                        backoff_factor=0.5,  # 重试间隔时间因子
+                        status_forcelist=[500, 502, 503, 504]  # 针对哪些状态码重试
+                        )
+
+            # 安装适配器到会话
+            adapter = HTTPAdapter(max_retries=retry)
+            session.mount('https://', adapter)
+
+            # 使用会话发送请求
+            try:
+                response = session.post(TELEGRAM_API_URL, data=payload)
+                response.raise_for_status()  # 检查请求是否成功
+                #print(response.text)
+            
+            except requests.exceptions.RequestException as e:
                 logger.error(f"发送Telegram通知失败: {response.text}")
 
 
@@ -287,16 +306,17 @@ def monitor_folder(source_dir):
         #开始扫库
         # 判断 result_set 是否有内容
         if result_set:
-            logger.info(f"{result_set}")
+            #logger.info(f"{result_set}")
+            if path_delete == 'true':
+                delete_directories_at_level(source_dir, path_layers)
+                logger.info(f"已清理目录残留")
             emby_refresh = EmbyRefresh(EMBY_API_KEY, EMBY_SERVER_URL)
             emby_refresh.refresh_library()
             logger.info("完成emby刷新通知.")
             media = "\n".join(sorted(media_set))
-            send_telegram_notification(f"\n新增媒体：\n\n{media}\n\n处理完成\n")
             logger.info(f"\n新增媒体：\n\n{media}\n\n处理完成\n")
-            if path_delete:
-                delete_directories_at_level(source_dir, path_layers)
-                logger.info(f"已清理目录残留")
+            logger.info(f"是否清理目录残留：{path_delete}")
+            send_telegram_notification(f"\n新增媒体：\n\n{media}\n\n处理完成\n")    
         result_set=set()
         media_set=set()           
         time.sleep(5)
