@@ -17,7 +17,6 @@ app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', '12345678')
 vars = {
     'TELEGRAM_BOT_TOKEN': '',
     'TELEGRAM_CHAT_ID': '',
-    'TELEGRAM_API_URL': '',
     'EMBY_SERVER_URL': '',
     'EMBY_API_KEY': '',
     'source_dir': '',
