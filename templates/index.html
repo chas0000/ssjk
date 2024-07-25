@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Log Viewer</title>
+    <title>实时日志查看器</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -61,7 +61,6 @@
             overflow: hidden;
             transition: max-height 0.5s ease-out;
             max-height: 1000px;
-            /* Set this to a large value so it can accommodate any content */
         }
 
         .form-group-container.folded {
@@ -77,85 +76,78 @@
             margin-right: 10px;
         }
     </style>
-    </style>
 </head>
 
 <body>
     <div class="container">
         <h1>网盘轮询入库</h1>
         <form method="POST">
-            <!-- {% for key, value in vars.items() %}
-            <div class="form-group">
-                <label for="{{ key }}">{{ key }}:</label>
-                <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}">
-            </div>
-            {% endfor %}-->
             <button type="button" class="fold-toggle" id="foldToggle">隐藏参数</button>
-            <div class="form-group-container foldable">
+            <div class="form-group-container foldable" id="foldableContent">
                 <div class="form-group">
-                    <label for="name">TELEGRAM_BOT_TOKEN:</label>
+                    <label for="TELEGRAM_BOT_TOKEN">TELEGRAM_BOT_TOKEN:</label>
                     <input type="text" id="TELEGRAM_BOT_TOKEN" name="TELEGRAM_BOT_TOKEN"
                         value="{{ vars.get('TELEGRAM_BOT_TOKEN', '') }}">
                 </div>
                 <div class="form-group">
-                    <label for="name">TELEGRAM_CHAT_ID:</label>
+                    <label for="TELEGRAM_CHAT_ID">TELEGRAM_CHAT_ID:</label>
                     <input type="text" id="TELEGRAM_CHAT_ID" name="TELEGRAM_CHAT_ID"
                         value="{{ vars.get('TELEGRAM_CHAT_ID', '') }}">
                 </div>
                 <div class="form-group">
-                    <label for="name">EMBY_SERVER_URL:</label>
+                    <label for="EMBY_SERVER_URL">EMBY_SERVER_URL:</label>
                     <input type="text" id="EMBY_SERVER_URL" name="EMBY_SERVER_URL"
                         value="{{ vars.get('EMBY_SERVER_URL', '') }}">
                 </div>
                 <div class="form-group">
-                    <label for="name">EMBY_API_KEY:</label>
+                    <label for="EMBY_API_KEY">EMBY_API_KEY:</label>
                     <input type="text" id="EMBY_API_KEY" name="EMBY_API_KEY" value="{{ vars.get('EMBY_API_KEY', '') }}">
                 </div>
                 <div class="form-group">
-                    <label for="name">网盘监控目录路径:</label>
+                    <label for="source_dir">网盘监控目录路径:</label>
                     <input type="text" id="source_dir" name="source_dir" value="{{ vars.get('source_dir', '') }}">
                 </div>
                 <div class="form-group">
-                    <label for="name">Strm文件存储路径:</label>
+                    <label for="strm_dir">Strm文件存储路径:</label>
                     <input type="text" id="strm_dir" name="strm_dir" value="{{ vars.get('strm_dir', '') }}">
                 </div>
                 <div class="form-group">
-                    <label for="name">Emby库路径:</label>
+                    <label for="docker_dir">Emby库路径:</label>
                     <input type="text" id="docker_dir" name="docker_dir" value="{{ vars.get('docker_dir', '') }}">
                 </div>
                 <div class="form-group">
-                    <label for="name">网盘最终库路径:</label>
+                    <label for="library_dir">网盘最终库路径:</label>
                     <input type="text" id="library_dir" name="library_dir" value="{{ vars.get('library_dir', '') }}">
                 </div>
                 <div class="form-group">
-                    <label for="name">Strm补齐路径:</label>
+                    <label for="cloud_dir">Strm补齐路径:</label>
                     <input type="text" id="cloud_dir" name="cloud_dir" value="{{ vars.get('cloud_dir', '') }}">
                 </div>
                 <div class="form-group">
-                    <label for="name">Emby库目录层级数:</label>
+                    <label for="path_layers">Emby库目录层级数:</label>
                     <input type="text" id="path_layers" name="path_layers" value="{{ vars.get('path_layers', '') }}">
                 </div>
-                <div class="checkbox-with-button">  
-                    <!-- 隐藏字段，初始值为'false' -->  
-                    <input type="hidden" name="path_delete" value="false" id="pathDeleteHidden">  
-                    <!-- 复选框 -->  
-                    <label>  
-                        <span>是否要清理目录残留</span>  
-                        <input type="checkbox" name="path_delete" value="true" id="pathDeleteCheckbox" {{ 'checked' if vars.get('path_delete', '') == 'true' else '' }}> 删除路径  
-                    </label>  
-                    <button type="submit">提交</button>  
-                </div>  
-
+                <div class="checkbox-with-button">
+                    <!-- 隐藏字段，初始值为'false' -->
+                    <input type="hidden" name="path_delete" value="false" id="pathDeleteHidden">
+                    <!-- 复选框 -->
+                    <label>
+                        <span>是否要清理目录残留</span>
+                        <input type="checkbox" name="path_delete" value="true" id="pathDeleteCheckbox" {{ 'checked' if
+                            vars.get('path_delete', '' )=='true' else '' }}> 删除路径
+                    </label>
+                    <button type="submit">提交</button>
+                </div>
             </div>
             <button type="submit" name="start" class="{{ button_class }}">{{ button_text }}</button>
+        </form>
 
-            <h4>Logs</h4>
-            <form id="control-form">
-                <!-- 假设此处动态生成表单字段，已省略具体实现 -->
-                <button type="button" onclick="startLogStream()">开启日志流</button>
-                <button type="button" onclick="stopLogStream()">停止日志流</button>
-            </form>
-            <div id="log">Connecting to log stream...</div>
+        <h4>日志</h4>
+        <form id="control-form">
+            <button type="button" onclick="startLogStream()">开启日志流</button>
+            <button type="button" onclick="stopLogStream()">停止日志流</button>
+        </form>
+        <div id="log">等待日志流数据...</div>
     </div>
 
     <script>
@@ -170,12 +162,12 @@
                     logDiv.scrollTop = logDiv.scrollHeight;
                 };
                 eventSource.onerror = function (error) {
-                    console.error("EventSource failed:", error);
+                    console.error("EventSource连接失败:", error);
                     if (eventSource) {
                         eventSource.close();
                         eventSource = null;
                     }
-                    document.getElementById('log').innerHTML = "Log connection lost. Refresh the page to retry.";
+                    document.getElementById('log').innerHTML = "日志连接丢失，请刷新页面重试。";
                 };
             }
         }
@@ -184,15 +176,8 @@
             if (eventSource !== null) {
                 eventSource.close();
                 eventSource = null;
-                document.getElementById('log').innerHTML = "Log streaming stopped.";
+                document.getElementById('log').innerHTML += "<br>日志流已停止。";
             }
-        }
-
-        // 假设在某个地方你有设置或获取状态的逻辑
-        function getMonitoringStatus() {
-            // 从sessionStorage获取状态，注意转换布尔值的表示
-            const statusStr = sessionStorage.getItem('monitoring');
-            return statusStr === 'true';
         }
 
         // 页面加载时初始化按钮状态
@@ -228,44 +213,30 @@
                 // 这里还可以触发AJAX请求到服务器，真正开始或停止监控任务  
             });
         });
-        document.addEventListener('DOMContentLoaded', function () {
-            var foldToggleButton = document.querySelector('.fold-toggle');
-            foldToggleButton.addEventListener('click', function () {
-                var formGroupContainer = document.querySelector('.form-group-container.foldable');
-                formGroupContainer.classList.toggle('folded');
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function () {
-            var foldToggle = document.getElementById('foldToggle');
-            var foldableContent = document.getElementById('foldableContent');
-            var isFolded = false;
-            foldToggle.addEventListener('click', function () {
-                isFolded = !isFolded;
-                foldableContent.style.display = isFolded ? 'none' : 'block';
-                foldToggle.textContent = isFolded ? '展开参数' : '隐藏参数';
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function () {
-            var checkbox = document.querySelector('input[name="path_delete"][type="checkbox"]');
-            var storedValue = vars.get('library_dir', ''); /* 从某处获取存储的值，比如localStorage、cookie或服务器响应 */
-            checkbox.checked = storedValue === 'true';
+
+        // 折叠逻辑
+        const foldToggle = document.getElementById('foldToggle');
+        const foldableContent = document.getElementById('foldableContent');
+        let isFolded = false;
+
+        foldToggle.addEventListener('click', function () {
+            isFolded = !isFolded;
+            if (isFolded) {
+                foldableContent.classList.add('folded');
+                foldToggle.textContent = '显示参数';
+            } else {
+                foldableContent.classList.remove('folded');
+                foldToggle.textContent = '隐藏参数';
+            }
         });
 
-        document.addEventListener('submit', function(event) {  
-        // 检查复选框是否被勾选  
-        var checkbox = document.getElementById('pathDeleteCheckbox');  
-        var hiddenField = document.getElementById('pathDeleteHidden');  
-          
-        // 如果复选框被勾选，则确保隐藏字段不会被提交  
-        if (checkbox.checked) {  
-            hiddenField.disabled = true; // 禁用隐藏字段，这样它就不会被提交了  
-        } else {  
-            hiddenField.disabled = false; // 启用隐藏字段，确保它被提交  
-        }  
-    });  
-        // 页面加载时启动日志流
+        const checkbox = document.getElementById('pathDeleteCheckbox');
+        const hiddenInput = document.getElementById('pathDeleteHidden');
 
-        startLogStream();
+        checkbox.addEventListener('change', function () {
+            hiddenInput.value = checkbox.checked ? 'true' : 'false';
+        });
+        
     </script>
 </body>
 
