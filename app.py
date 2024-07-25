@@ -106,7 +106,7 @@ def index():
         for key in vars.keys():  
             if key in request.form:  
                 vars[key] = request.form[key]  
-        vars['path_delete'] = 'true' if 'path_delete' in request.form else 'false'  
+        #vars['path_delete'] = 'true' if 'path_delete' in request.form else 'false'  
         save_vars(vars)  
   
         if 'start' in request.form:  
