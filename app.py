@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request , Response ,session ,render_template_string
+from flask import Flask, render_template, request, Response, session, jsonify
 import threading
 import logging
 import time
@@ -10,8 +10,6 @@ from pathlib import Path
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', '12345678')
-# JSON 文件路径
-
 
 # 设定初始变量值
 vars = {
@@ -35,7 +33,8 @@ log_dir = os.path.join(script_dir, 'logs')
 prefix_name = Path(__file__).stem
 log_filename = os.path.join(log_dir, f'{prefix_name}.log')
 os.makedirs(log_dir, exist_ok=True)
-script_file = os.path.join(script_dir, 'ssjk.py') 
+script_file = os.path.join(script_dir, 'ssjk.py')
+
 # 加载变量
 def load_vars():
     if os.path.isfile(CONFIG_FILE) and os.path.getsize(CONFIG_FILE) > 3:  # 检查文件存在且非空
@@ -54,14 +53,9 @@ def save_vars(vars):
 vars = load_vars()
 
 def configure_logging():
-    
     # 获取当前时间并格式化为字符串
     log_time = time.strftime("%Y%m%d-%H%M%S")
-    prefix = prefix_name + '_'
-
-    
     # 定义日志文件名格式，包含时间戳
-    #log_filename = os.path.join(log_dir, f'{prefix}{log_time}.log')
     log_filename = os.path.join(log_dir, f'{prefix_name}.log')
     
     # 创建日志记录器
@@ -77,7 +71,6 @@ def configure_logging():
     console_handler.setLevel(logging.DEBUG)
     
     # 创建格式化器
-    #formatter = logging.Formatter('%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s')
     formatter = logging.Formatter('%(levelname)s %(asctime)s %(message)s')
     file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
@@ -87,15 +80,7 @@ def configure_logging():
     logger.addHandler(console_handler)
     
     return logger
-def check_and_rotate_log():
-    global logger
-    current_date = time.strftime("%Y%m%d")
-    if not hasattr(check_and_rotate_log, "last_date"):
-        check_and_rotate_log.last_date = current_date
-    
-    if check_and_rotate_log.last_date != current_date:
-        logger = configure_logging()
-        check_and_rotate_log.last_date = current_date
+
 logger = configure_logging()
 
 monitor_thread = None
@@ -110,19 +95,14 @@ def run_script():
         subprocess.run(["python3", script_file], env={**os.environ, **env_vars})  # 传递环境变量并运行ssjk.py
         time.sleep(5)
 
-def get_latest_log_file():
-    log_files = glob.glob(log_filename )
-    if not log_files:
-        return None
-    latest_log_file = max(log_files, key=os.path.getctime)
-    return latest_log_file
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    global monitor_thread, monitor_running, vars , monitoring
+    global monitor_thread, monitor_running, vars
     if request.method == 'POST':
         for key in vars.keys():
-            vars[key] = request.form[key]
+            if key in request.form:
+                vars[key] = request.form[key]
+        vars['path_delete'] = 'true' if 'path_delete' in request.form else 'false'
         save_vars(vars)
         # 检查并设置session状态
         if 'start' in request.form and not session.get('monitoring', False):
@@ -140,27 +120,24 @@ def index():
     # 页面初次加载或刷新时，根据session状态决定是否显示"开始监控"或"停止监控"
     monitoring_status = session.get('monitoring', False)
 
-    return render_template('index.html', vars=vars,monitoring=monitoring_status) #,monitoring=monitoring_status 
-    
-
+    return render_template('index.html', vars=vars, monitoring=monitoring_status)
 
 @app.route('/logs')
-
 def stream_logs():
     def generate():
-        logger.info(f"log路径：{ssjk_log}")
         with open(ssjk_log, 'r') as f:
-            # 读取现有日志内容
-            yield f.read()
-            # 定位到文件末尾，准备监听新内容
-            f.seek(0, 2)  # 0代表文件开头，2代表文件末尾
             while True:
                 line = f.readline()
-                if not line:
-                    time.sleep(1)  # 没有新日志时等待，避免CPU占用过高
-                    continue
-                yield f"data: {line.strip()}\n\n"
+                if line:
+                    yield 'data: {}\n\n'.format(line.strip())
+                else:
+                    time.sleep(1)
     return Response(generate(), mimetype='text/event-stream')
 
+@app.route('/status')
+def status():
+    monitoring_status = session.get('monitoring', False)
+    return jsonify(monitoring=monitoring_status)
+
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0', port=5432)
+    app.run(debug=True, host='0.0.0.0', port=5432)
