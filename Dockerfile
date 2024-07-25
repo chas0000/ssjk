@@ -10,7 +10,7 @@ COPY . /app
 # 安装 requirements.txt 中指定的任何依赖
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt  
-RUN apt-get update && apt-get install -y tzdata  
+RUN apk update && apk install -y tzdata  
 RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone
   
 # 让容器监听端口 5000  
