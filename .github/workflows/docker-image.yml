@@ -22,4 +22,4 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/ssjk:$(date +%Y%m%d%H%M%S) .
-          docker push ${{ secrets.DOCKER_USERNAME }}/ssjk
+          docker push ${{ secrets.DOCKER_USERNAME }}/ssjk:$(date +%Y%m%d%H%M%S)
