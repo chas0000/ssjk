@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response, session, jsonify
+from flask import Flask, render_template, request, Response, session, jsonify ,make_response
 import threading
 import logging
 import time
@@ -95,32 +95,39 @@ def run_script():
         subprocess.run(["python3", script_file], env={**os.environ, **env_vars})  # 传递环境变量并运行ssjk.py
         time.sleep(5)
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    global monitor_thread, monitor_running, vars
-    if request.method == 'POST':
-        for key in vars.keys():
-            if key in request.form:
-                vars[key] = request.form[key]
-        vars['path_delete'] = 'true' if 'path_delete' in request.form else 'false'
-        save_vars(vars)
-        # 检查并设置session状态
-        if 'start' in request.form and not session.get('monitoring', False):
-            session['monitoring'] = True
-            monitor_running = True
-            monitor_thread = threading.Thread(target=run_script)
-            monitor_thread.start()
-            logger.info("Started monitoring")
-        elif 'stop' in request.form:
-            session['monitoring'] = False
-            monitor_running = False
-            if monitor_thread and monitor_thread.is_alive():
-                monitor_thread.join()
-            logger.info("Stopped monitoring")
-    # 页面初次加载或刷新时，根据session状态决定是否显示"开始监控"或"停止监控"
-    monitoring_status = session.get('monitoring', False)
 
-    return render_template('index.html', vars=vars, monitoring=monitoring_status)
+@app.route('/', methods=['GET', 'POST'])
+def index():  
+    global monitor_thread, monitor_running, vars  
+    monitoring_cookie_value = request.cookies.get('monitoring', 'false')  
+    monitoring_status = monitoring_cookie_value.lower() == 'true'  
+  
+    if request.method == 'POST':  
+        for key in vars.keys():  
+            if key in request.form:  
+                vars[key] = request.form[key]  
+        vars['path_delete'] = 'true' if 'path_delete' in request.form else 'false'  
+        save_vars(vars)  
+  
+        if 'start' in request.form:  
+            monitor_running = True  
+            monitor_thread = threading.Thread(target=run_script)  
+            monitor_thread.start()  
+            logger.info("Started monitoring")  
+            resp = make_response(render_template('index.html', vars=vars, monitoring=True))  
+            resp.set_cookie('monitoring', 'true')  
+            return resp  
+        elif 'stop' in request.form:  
+            if monitor_thread and monitor_thread.is_alive():  
+                monitor_running = False  # 发送停止信号  
+                monitor_thread.join()    # 等待线程结束  
+            logger.info("Stopped monitoring")  
+            resp = make_response(render_template('index.html', vars=vars, monitoring=False))  
+            resp.set_cookie('monitoring', 'false')  
+            return resp  
+  
+    return render_template('index.html', vars=vars, monitoring=monitoring_status) 
+
 
 @app.route('/logs')
 def stream_logs():
