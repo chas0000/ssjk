@@ -184,35 +184,45 @@
         document.addEventListener('DOMContentLoaded', function () {
             var button = document.querySelector('button[name="start"]');
 
-            // 使用闭包来封装isActive状态  
-            var getMonitoringStatus = (function () {
-                var status = sessionStorage.getItem('monitoringStatus') === 'true';
-                return function () {
-                    return status;
-                };
-            })();
+            // 使用闭包来封装isActive状态，现在通过cookie获取和设置  
+            function getMonitoringStatus() {
+                var cookies = document.cookie.split("; ");
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i];
+                    var eqPos = cookie.indexOf("=");
+                    var name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie;
+                    if (name === 'monitoring') {
+                        return cookie.substr(eqPos + 1).trim() === 'true';
+                    }
+                }
+                return false; // 默认未设置时为false  
+            }
 
-            var setMonitoringStatus = (function () {
-                return function (newStatus) {
-                    sessionStorage.setItem('monitoringStatus', newStatus.toString());
-                    return newStatus;
-                };
-            })();
+            var setMonitoringStatus = function (newStatus) {
+                var date = new Date();
+                date.setTime(date.getTime() + (3600 * 1000)); // 设置cookie有效期为1小时  
+                var expires = "expires=" + date.toUTCString();
+                var sameSite = "SameSite=Lax"; // 如果使用HTTPS，可以改为 "SameSite=None; Secure"  
+                document.cookie = "monitoring=" + (newStatus ? 'true' : 'false') + "; " + expires + "; " + sameSite + "; path=/"; // 添加path属性以确保cookie在所有路径下都有效  
+            };
 
             function updateButton() {
                 var isActive = getMonitoringStatus();
-                button.textContent = isActive ? '停止监控' : '开始监控';
+                var buttonText = isActive ? '正在监控' : '开始监控';
+                button.textContent = buttonText;
                 button.classList.toggle('active', isActive);
             }
 
             updateButton(); // 初始更新按钮状态  
 
             button.addEventListener('click', function () {
-                var newStatus = setMonitoringStatus(!getMonitoringStatus());
+                var newStatus = !getMonitoringStatus(); // 直接取反getMonitoringStatus()的返回值  
+                setMonitoringStatus(newStatus);
                 updateButton(); // 更新按钮状态  
-                // 这里还可以触发AJAX请求到服务器，真正开始或停止监控任务  
+                // 这里可以触发AJAX请求到服务器，真正开始或停止监控任务  
             });
         });
+
 
         // 折叠逻辑
         const foldToggle = document.getElementById('foldToggle');
@@ -236,7 +246,7 @@
         checkbox.addEventListener('change', function () {
             hiddenInput.value = checkbox.checked ? 'true' : 'false';
         });
-        
+
     </script>
 </body>
 
