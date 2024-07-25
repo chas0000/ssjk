@@ -239,14 +239,27 @@
                 foldToggle.textContent = '隐藏参数';
             }
         });
-
-        const checkbox = document.getElementById('pathDeleteCheckbox');
-        const hiddenInput = document.getElementById('pathDeleteHidden');
-
-        checkbox.addEventListener('change', function () {
-            hiddenInput.value = checkbox.checked ? 'true' : 'false';
+document.addEventListener('DOMContentLoaded', function () {
+            var checkbox = document.querySelector('input[name="path_delete"][type="checkbox"]');
+            var storedValue = vars.get('library_dir', ''); /* 从某处获取存储的值，比如localStorage、cookie或服务器响应 */
+            checkbox.checked = storedValue === 'true';
         });
 
+        document.addEventListener('submit', function (event) {
+            // 检查复选框是否被勾选  
+            var checkbox = document.getElementById('pathDeleteCheckbox');
+            var hiddenField = document.getElementById('pathDeleteHidden');
+
+            // 如果复选框被勾选，则确保隐藏字段不会被提交  
+            if (checkbox.checked) {
+                hiddenField.disabled = true; // 禁用隐藏字段，这样它就不会被提交了  
+            } else {
+                hiddenField.disabled = false; // 启用隐藏字段，确保它被提交  
+            }
+        });
+        // 页面加载时启动日志流
+
+        startLogStream(); 
     </script>
 </body>
 
