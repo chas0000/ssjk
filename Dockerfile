@@ -23,5 +23,5 @@ EXPOSE 5432
 ENV NAME World  
   
 # 在容器启动时运行 Flask 应用  
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 #CMD ["/app/entrypoint.sh"]
