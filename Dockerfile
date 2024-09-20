@@ -23,4 +23,4 @@ ENV NAME World
   
 # 在容器启动时运行 Flask 应用  
 ENTRYPOINT ["python3"]
-#CMD ["/app/ssjk.py"]
+CMD ["/app/ssjk.py"]
