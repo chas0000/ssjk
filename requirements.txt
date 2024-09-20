@@ -1,3 +1,2 @@
-Flask==3.0.3
-Requests==2.32.3
+Requests
 pyyaml
