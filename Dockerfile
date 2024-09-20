@@ -6,7 +6,7 @@ WORKDIR /app
   
 # 将当前目录内容复制到位于 /app 中的容器中  
 COPY . /app
-COPY entrypoint.sh /usr/local/bin/
+COPY ./entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 RUN chmod +x /app/ssjk.py
   
