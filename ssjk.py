@@ -14,7 +14,17 @@ from pathlib import Path
 import yaml
 import threading 
 
-
+source_file = '/backup/config.yaml.bak'  
+destination_dir = '/app/config'  
+destination_file = os.path.join(destination_dir, 'config.yaml')    
+# 确保目标目录存在  
+os.makedirs(destination_dir, exist_ok=True)    
+# 检查目标文件是否存在  
+if not os.path.isfile(destination_file):  
+    print("File does not exist, copying from backup")  
+    # 复制文件  
+    shutil.copy(source_file, destination_file)
+    
 with open('/app/config/config.yaml', 'r') as file:  
     data = yaml.safe_load(file)
 #输入路径参数集合
