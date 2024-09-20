@@ -5,7 +5,9 @@ FROM python:3-alpine
 WORKDIR /app  
   
 # 将当前目录内容复制到位于 /app 中的容器中  
-COPY . /app  
+COPY . /app
+RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/ssjk.py
   
 # 安装 requirements.txt 中指定的任何依赖
 RUN pip install --upgrade pip
@@ -21,5 +23,5 @@ EXPOSE 5432
 ENV NAME World  
   
 # 在容器启动时运行 Flask 应用  
-ENTRYPOINT ["python3"]
-CMD ["/app/app.py"]
+ENTRYPOINT ["/app/entrypoint.sh"]
+#CMD ["/app/entrypoint.sh"]
