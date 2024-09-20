@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 import threading 
 
-source_file = '/backup/config.yaml.bak'  
+source_file = '/app/backup/config.yaml.bak'  
 destination_dir = '/app/config'  
 destination_file = os.path.join(destination_dir, 'config.yaml')    
 # 确保目标目录存在  
