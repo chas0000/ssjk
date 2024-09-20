@@ -7,4 +7,4 @@ if [ ! -f ./config/config.yaml ]; then
 fi  
   
 # 现在可以运行你的应用  
-exec python3 /app/ssjk.py
+exec python3 ssjk.py
