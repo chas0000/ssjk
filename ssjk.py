@@ -24,7 +24,7 @@ if not os.path.isfile(destination_file):
     print("File does not exist, copying from backup")  
     # 复制文件  
     shutil.copy(source_file, destination_file)
-    
+#输入config信息    
 with open('/app/config/config.yaml', 'r') as file:  
     data = yaml.safe_load(file)
 #输入路径参数集合
