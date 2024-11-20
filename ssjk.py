@@ -39,10 +39,7 @@ EMBY_SERVER_URL = data['EMBY_SERVER_URL']
 EMBY_API_KEY = data['EMBY_API_KEY']
 
 
-#采集待通知库信息
-result_set = set() #非填写项
-media_set = set() #非填写项
-error_set = set()
+
 #path_layers = int(path_layers)
 def configure_logging():
     # 获取当前脚本的文件名（不包括扩展名）
@@ -224,8 +221,9 @@ def delete_directories_at_level(root, path_layers):
             if not stack and current_level > 1:  
                 current_level -= 1 
 
-def process_file(file_path,source_dir,strm_dir,docker_dir,library_dir,cloud_dir,path_layers,path_delete):
-        global result_set, media_set,error_set
+def process_file(file_path,source_dir,strm_dir,docker_dir,library_dir,cloud_dir,path_layers,path_delete,result_set, media_set,error_set):
+        #global result_set, media_set,error_set
+        
         filename = os.path.basename(file_path)
           
         if filename.endswith('.py'):  
@@ -283,7 +281,11 @@ def format_time(seconds):
 
 # 监控文件夹的函数
 def monitor_folder(item):
-    global result_set,media_set,error_set,dir_set,TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_ID,TELEGRAM_API_URL
+    global TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_ID,TELEGRAM_API_URL
+    #采集待通知库信息
+    result_set = set() 
+    media_set = set() 
+    error_set = set()
     #print(f"Monitoring {item}")
     parts = item.split('|')
     source_dir =  parts[0]
@@ -307,7 +309,7 @@ def monitor_folder(item):
             if files:
                 for file in files:  
                     file_path = os.path.join(root, file)  
-                    process_file(file_path,source_dir,strm_dir,docker_dir,library_dir,cloud_dir,path_layers,path_delete)
+                    process_file(file_path,source_dir,strm_dir,docker_dir,library_dir,cloud_dir,path_layers,path_delete,result_set, media_set,error_set)
                     logger.info(f"新增文件{file}处理完成")
                         #send_telegram_notification(f"新增文件{file}处理完成")
         #executor.shutdown(wait=True)
