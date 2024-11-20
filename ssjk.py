@@ -123,7 +123,7 @@ def send_telegram_notification(message):
 
 # EmbyRefresh 类定义
 class EmbyRefresh:
-    def __init__(self, api_key, emby_addr):
+    def __init__(self, api_key, emby_addr,result_set):
         self.api_key = api_key
         self.emby_addr = emby_addr
         self.library_item_ids = self._get_library_item_ids()
