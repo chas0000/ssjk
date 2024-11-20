@@ -126,8 +126,8 @@ class EmbyRefresh:
     def __init__(self, api_key, emby_addr,result_set):
         self.api_key = api_key
         self.emby_addr = emby_addr
-        self.library_item_ids = self._get_library_item_ids()
-    def _get_library_item_ids(self):
+        self.library_item_ids = self._get_library_item_ids(self,result_set)
+    def _get_library_item_ids(self,result_set):
         itemIds=[]
         url = f"{self.emby_addr}/Items"
         headers = {
