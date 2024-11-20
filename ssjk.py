@@ -333,7 +333,7 @@ def monitor_folder(item):
             if path_delete == 'true':
                 delete_directories_at_level(source_dir, path_layers)
                 logger.info(f"已清理目录残留")
-            emby_refresh = EmbyRefresh(EMBY_API_KEY, EMBY_SERVER_URL)
+            emby_refresh = EmbyRefresh(EMBY_API_KEY, EMBY_SERVER_URL,result_set)
             emby_refresh.refresh_library()
             logger.info("完成emby刷新通知.")
             media = "\n".join(sorted(media_set))
