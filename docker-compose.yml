@@ -6,6 +6,7 @@ services:
             - '/mnt:/mnt' #映射你需要的目录
             - ./config:/app/config
             - ./logs:/app/logs
+            #如果需要对脚本进行自定义修改，请在仓库中下载ssjk.py,修改后自行映射进/app/ssjk.py即可。
         ports:
             - '5432:5432'
         environment: #群晖下id好像不可用，自行注释掉使用
