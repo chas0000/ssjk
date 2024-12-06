@@ -8,7 +8,7 @@ services:
             - ./logs:/app/logs
         ports:
             - '5432:5432'
-        environment:
+        environment: #群晖下id好像不可用，自行注释掉使用
             - PUID=0
             - PGID=0
             - UMASK=022
